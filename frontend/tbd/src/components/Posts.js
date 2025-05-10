@@ -6,8 +6,8 @@ function Posts() {
   const [interests, setInterests] = useState('');
   const [userId, setUserId] = useState(null);
 
-  const backendApiUrl = 'https://backend-ieee.onrender.com';
-
+  //const backendApiUrl = 'https://backend-ieee.onrender.com';
+  const backendApiUrl = 'http://localhost:5001'; 
   const [likedJobs, setLikedJobs] = useState([]);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [allJobs, setAllJobs] = useState([]);

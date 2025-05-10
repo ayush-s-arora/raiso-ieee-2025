@@ -9,7 +9,9 @@ function StudentDashboard() {
     // const lastName = profileData.last_name
 
    // const backendApiUrl = 'https://raiso-ieee-2025.onrender.com';
-    const backendApiUrl ='https://backend-ieee.onrender.com';
+    //const backendApiUrl ='https://backend-ieee.onrender.com';
+
+    const backendApiUrl = 'http://localhost:5001'; 
     const navigate = useNavigate();
     
     const authToken = localStorage.getItem('authToken');
