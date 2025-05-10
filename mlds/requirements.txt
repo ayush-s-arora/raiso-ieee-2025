@@ -12,10 +12,9 @@ pandas
 python-dotenv
 python-multipart
 scikit-learn
-selenium
 sentence-transformers
 supabase
 tiktoken
 torch
 transformers
-uvicorn[standard]
+uvicorn

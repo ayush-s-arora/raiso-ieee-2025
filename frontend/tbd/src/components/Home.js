@@ -1,15 +1,17 @@
 import React from 'react';
-import PostsNavBar from './PostsNavBar';
+import Navbar from './Navbar';
 // import SearchBar from './SearchBar';
+import Footer from './Footer'
 import Posts from './Posts';
 
 
 const Home = () => {
     return (
         <div>
-            <PostsNavBar />
+            <Navbar />
             {/* <SearchBar /> */}
             <Posts />
+            <Footer />
         </div>
     );
 };

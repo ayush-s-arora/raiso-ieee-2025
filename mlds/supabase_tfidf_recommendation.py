@@ -66,4 +66,3 @@ class VolunteerRecommender:
         recommendations = self.df.iloc[top_indices].copy()
         recommendations['similarity'] = cosine_similarities[top_indices]
         return recommendations[['id', 'title', 'description', 'similarity']]
-
