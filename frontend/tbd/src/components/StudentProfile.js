@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-<<<<<<< HEAD
 function StudentProfile(){
     //get user data from local storage
     //const backendApiUrl = 'https://raiso-ieee-2025.onrender.com';
@@ -9,11 +8,6 @@ function StudentProfile(){
 
     const backendApiUrl = 'http://localhost:5001'; 
     const navigate = useNavigate();
-=======
-function StudentProfile() {
-  const backendApiUrl = 'https://backend-ieee.onrender.com';
-  const navigate = useNavigate();
->>>>>>> 7124eb12b7e9b8e37e10e732126e4be7292820ba
 
   const authToken = localStorage.getItem('authToken');
   let userAuthData = null;
@@ -114,6 +108,35 @@ function StudentProfile() {
     navigate('/');
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete your account? This cannot be undone.');
+    if (!confirmed) return;
+  
+    try {
+      const res = await fetch(`${backendApiUrl}/auth/delete-account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to delete account.');
+      }
+  
+      // On success: clear auth and redirect
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('userAuthData');
+      navigate('/');
+    } catch (error) {
+      alert('Error deleting account: ' + error.message);
+      console.error('Account deletion failed:', error);
+    }
+  };
+  
+
   if (loading) return <p>Loading profile...</p>;
   if (error) return <p>Error loading profile: {error}</p>;
 
@@ -186,6 +209,7 @@ function StudentProfile() {
 
             <div className='text-end'>
               <button type='submit' className='btn btn-primary custom-btn-post-color rounded-pill shadow'>Save Changes</button>
+              <button onClick={handleDeleteAccount} className='btn btn-primary custom-btn-post-color rounded-pill shadow'>Delete Account</button>
             </div>
           </form>
         </div>

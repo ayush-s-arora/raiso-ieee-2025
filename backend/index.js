@@ -5,6 +5,8 @@ import postsRouter from './routes/posts.js';
 import interestsRouter from './routes/interests.js';
 import supabase from './supabaseClient.js';
 import authRoutes from './routes/auth.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 const app = express();

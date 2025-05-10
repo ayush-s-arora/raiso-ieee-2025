@@ -1,22 +1,16 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import '../Posts.css';
+import React, { useEffect, useState } from 'react';
 
 function Posts() {
   const authToken = localStorage.getItem('authToken');
   const storedUserAuthData = localStorage.getItem('userAuthData');
   const [interests, setInterests] = useState('');
   const [userId, setUserId] = useState(null);
-<<<<<<< HEAD
 
   const [title, setTitle] = useState('');
   const [org, setOrg] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [blurb, setBlurb] = useState('');
-=======
-  const [searchTerm, setSearchTerm] = useState('');
-  const backendApiUrl = 'https://backend-ieee.onrender.com';
->>>>>>> 7124eb12b7e9b8e37e10e732126e4be7292820ba
 
   //const backendApiUrl = 'https://backend-ieee.onrender.com';
   const backendApiUrl = 'http://localhost:5001'; 
@@ -27,6 +21,7 @@ function Posts() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedJobId, setExpandedJobId] = useState(null);
+
   const itemsPerPage = 6;
   const fastApiUrl = `http://127.0.0.1:8000`
 
@@ -107,8 +102,13 @@ function Posts() {
         const res = await fetch(`${backendApiUrl}/interests/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: userId, job_id: jobId, type: actionType })
+          body: JSON.stringify({
+            user_id: userId,
+            job_id: jobId,
+            type: actionType
+          })
         });
+
         if (res.ok) {
           if (actionType === 'like' && !likedJobs.includes(jobId)) {
             setLikedJobs(prev => [...prev, jobId]);
@@ -136,19 +136,25 @@ function Posts() {
 
   const isJobLiked = (jobId) => likedJobs.includes(jobId);
   const isJobApplied = (jobId) => appliedJobs.includes(jobId);
-  const toggleExpand = (id) => setExpandedJobId(prevId => (prevId === id ? null : id));
+
+  const toggleExpand = (id) => {
+    setExpandedJobId(prevId => (prevId === id ? null : id));
+  };
 
   const backupJobs = async () => {
     setLoading(true);
     setError(null);
+
     try {
       const res = await fetch(`${backendApiUrl}/posts/?limit=250`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
       const data = await res.json();
       const prioritizedJobs = data.sort((a, b) => {
         const sponsor = "MEALS ON WHEELS NORTHEASTERN ILLINOIS";
         return (a.organization === sponsor ? -1 : b.organization === sponsor ? 1 : 0);
       });
+
       setAllJobs(prioritizedJobs);
     } catch (error) {
       setError(error.message);
@@ -157,20 +163,6 @@ function Posts() {
       setLoading(false);
     }
   };
-
-  const [firstName, setFirstName] = useState('');
-
-  useEffect(() => {
-    if (storedUserAuthData) {
-      try {
-        const userAuthData = JSON.parse(storedUserAuthData);
-        setUserId(userAuthData?.id);
-        setFirstName(userAuthData?.first_name || '');
-      } catch (error) {
-        console.error("Error parsing userAuthData:", error);
-      }
-    }
-  }, [storedUserAuthData]);
 
   useEffect(() => {
     const fetchAllJobs = async () => {
@@ -185,46 +177,22 @@ function Posts() {
     fetchAllJobs();
   }, [userId]);
 
-  const filteredJobs = useMemo(() => {
-    return allJobs
-      .filter(job => !appliedJobs.includes(job.id) || job.organization === 'MEALS ON WHEELS NORTHEASTERN ILLINOIS')
-      .filter(job => {
-        const term = searchTerm.toLowerCase();
-        return (
-          job.title.toLowerCase().includes(term) ||
-          job.organization.toLowerCase().includes(term) ||
-          job.skills?.toLowerCase().includes(term) ||
-          job.description?.toLowerCase().includes(term)
-        );
-      });
-  }, [allJobs, appliedJobs, searchTerm]);
-
+  const filteredJobs = allJobs.filter(job => !appliedJobs.includes(job.id) || job.organization === 'MEALS ON WHEELS NORTHEASTERN ILLINOIS');
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
 
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) setCurrentPage(newPage);
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   if (loading) return <div className='container mt-4 text-center'>Loading volunteer opportunities...</div>;
   if (error) return <div className='container mt-4 text-center'>Error loading volunteer opportunities: {error}</div>;
 
   return (
-    <div className='container mt-4 mb-5'>
-      <div className='text-center mb-4'>
-      <h2 className='custom-posts-title'>
-        Your Volunteer Opportunities{firstName ? `, ${firstName}` : ''}
-      </h2>
-        <input
-          type='text'
-          className='form-control mt-3'
-          placeholder='Search by title, organization, skill, or description'
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
+    <div className='container mt-4'>
       <div className='row'>
         <div className='col-12 col-md-7'>
           <div className='pt-4 text-center'>
@@ -237,6 +205,7 @@ function Posts() {
           </div>
 
           <div className='pt-4 d-flex flex-column align-items-center row-gap-4'>
+            
             {(generatedJobs && generatedJobs.length > 0 ? generatedJobs : currentJobs).map((job) => (
               <div className={`card custom-card custom-card-bg-color ${job.organization === 'MEALS ON WHEELS NORTHEASTERN ILLINOIS' ? 'highlight-meals' : ''}`} key={job.id}>
                 <div className="card-header card-header-bg-color">{job.title}</div>
@@ -272,8 +241,8 @@ function Posts() {
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <div className='col-12 col-md-5 vh-100'>
@@ -283,10 +252,13 @@ function Posts() {
             </div>
           </div>
 
+          
           {/* <div className='row'>
             <button className='btn btn-secondary btn-poster'>Customize your Posts!</button>
+          </div>
           </div> */}
 
+          
        
             {/* <form className='pt-4' onSubmit={generateJobs}>
               <div>
@@ -296,6 +268,7 @@ function Posts() {
               <div className='container pt-1 custom-form-section custom-form-blurb-color'>
                 <div className="row g-3 pb-3">
                   <div className="col">
+                   
                     <label htmlFor="title" className="form-label" id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}>Title</label>
@@ -305,6 +278,7 @@ function Posts() {
 
                 <div className='row g-3 pb-3'>
                   <div className="col">
+                    
                     <label htmlFor="org" className="form-label" id="org"
               value={org}
               onChange={(e) => setOrg(e.target.value)}>Organization</label>
@@ -314,6 +288,7 @@ function Posts() {
 
                 <div className='row g-3 pb-3'>
                   <div className="col-md-7">
+        
                     <label htmlFor="city" className="form-label" id="city"
               value={city}
               onChange={(e) => setCity(e.target.value)}>City</label>
@@ -321,6 +296,7 @@ function Posts() {
                   </div>
 
                   <div className="col-md-5">
+                
                     <label htmlFor="inputState" className="form-label" id="inputState"
           
               value={state}
@@ -343,6 +319,7 @@ function Posts() {
               <div className='container pt-1 custom-form-section custom-form-blurb-color'>
                 <div className='row g-3 pb-3'>
                   <div className="col">
+                   
                     <label htmlFor="blurb" className="form-label" id="blurb"
               rows="3"
               value={blurb}
@@ -355,6 +332,7 @@ function Posts() {
                   <button type="submit" className="btn btn-primary custom-btn-post-color">Generate</button>
                 </div>
               </div>
+
             </form> */}
 
 <div className='row'>
@@ -453,25 +431,6 @@ function Posts() {
 </div>
           
         </div>
-
-        {totalPages > 1 && (
-          <div className='col-12 d-flex justify-content-center gap-3 mt-4 mb-5'>
-            <button
-              className='btn custom-btn-post-color'
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            <button
-              className='btn custom-btn-post-color'
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

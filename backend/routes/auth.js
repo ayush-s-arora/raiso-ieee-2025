@@ -381,4 +381,54 @@ router.post('/updateme', async (req, res) => {
   }
 })
 
+
+router.delete('/delete-account', async (req, res) => {
+  const { authorization } = req.headers;
+  if (!authorization) return res.status(401).json({ error: 'Missing token' });
+
+  const token = authorization.replace('Bearer ', '');
+
+  // Get user from token
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !userData?.user?.id) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+
+  const userId = userData.user.id;
+
+  try {
+    // 1. Delete from 'users' table (or any other user-related tables)
+    const { error: dbDeleteError } = await supabase
+      .from('users')
+      .delete()
+      .eq('userauth_id', userId);
+
+    if (dbDeleteError) {
+      console.error('Failed to delete user data from users table:', dbDeleteError);
+      return res.status(500).json({ error: 'Failed to delete user data' });
+    }
+
+    // 2. Delete from auth.users using service role key
+    const { createClient } = await import('@supabase/supabase-js');
+    const adminSupabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY // Keep this safe, do NOT expose to client
+    );
+
+    const { error: authDeleteError } = await adminSupabase.auth.admin.deleteUser(userId);
+
+    if (authDeleteError) {
+      console.error('Failed to delete user from auth:', authDeleteError);
+      return res.status(500).json({ error: 'Failed to delete user from auth system' });
+    }
+
+    return res.status(200).json({ message: 'Account deleted successfully' });
+
+  } catch (err) {
+    console.error('Error during account deletion:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 export default router;
